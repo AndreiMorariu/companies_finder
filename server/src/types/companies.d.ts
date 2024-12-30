@@ -1,0 +1,29 @@
+export interface CompanyFilters {
+  cui?: string;
+  caen?: string;
+  active_imobilizate?: string;
+  active_circulante?: string;
+  stocuri?: string;
+  creante?: string;
+  casa_si_conturi_la_banci?: string;
+  cheltuieli_in_avans?: string;
+  datorii?: string;
+  venituri_in_avans?: string;
+  provizioane?: string;
+  capitaluri?: string;
+  capital_subcris_varsat?: string;
+  patrimoniul_regiei?: string;
+  cifra_de_afaceri_neta?: string;
+  venituri_totale?: string;
+  cheltuieli_totale?: string;
+  profit_brut?: string;
+  pierdere_bruta?: string;
+  profit_net?: string;
+  pierdere_neta?: string;
+  numar_mediu_de_salariati?: string;
+  denumire?: string;
+  telefon?: string;
+  judet?: string;
+  limit?: string;
+  offset?: string;
+}
