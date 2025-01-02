@@ -40,7 +40,6 @@ export function useCompanies(initialLimit: number = 10) {
 						if (key === "numar_mediu_de_salariati") {
 							return companyValue > numericValue;
 						}
-						// Add more numeric comparisons here if needed
 						return companyValue === numericValue;
 					}
 				}
