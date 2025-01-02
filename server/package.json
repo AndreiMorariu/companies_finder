@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node --experimental-sqlite --env-file=.env dist/index.js",
-    "dev": "node -r ts-node/register --env-file=.env --experimental-sqlite src/index.ts",
+    "start": "node --experimental-sqlite dist/index.js",
+    "dev": "node -r ts-node/register --experimental-sqlite src/index.ts",
     "build": "tsc",
     "format": "prettier --write .",
     "lint": "eslint . ",

@@ -23,7 +23,7 @@ app.use(
   )
 );
 
-const PORT = process.env.PORT || 8000;
+const PORT = 8080;
 const BASE_URL = "/api";
 
 app.get(`${BASE_URL}/companies/:cui`, getCompanyByCuiHandler);
