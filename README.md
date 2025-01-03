@@ -141,17 +141,4 @@ The backend exposes two main routes for retrieving data:
        }
      }
      ```
-
-## Installation
-
-To get started with this project, follow the instructions below:
-
-### Prerequisites
-
-Ensure you have **Node.js** and **npm** installed on your system.
-
-### Clone the Repository
-
-```bash
-git clone https://github.com/AndreiMorariu/companies_finder.git
-cd romanian-it-companies-dashboard
+  
