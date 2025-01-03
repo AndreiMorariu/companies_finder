@@ -141,4 +141,6 @@ The backend exposes two main routes for retrieving data:
        }
      }
      ```
-  
+## Hosting
+
+Both the frontend and backend are hosted on an **AWS EC2** instance. The frontend is served by **Nginx**, which acts as a reverse proxy to route requests to either the frontend or the backend.
