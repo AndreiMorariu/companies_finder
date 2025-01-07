@@ -266,34 +266,6 @@ export function CompanyStatistics({
 						</div>
 					</CardContent>
 				</Card>
-				<Card>
-					<CardHeader>
-						<CardTitle>Creștere față de Anul Trecut</CardTitle>
-					</CardHeader>
-					<CardContent className="space-y-2">
-						<div className="flex items-center justify-between">
-							<span className="text-sm font-medium">Angajați:</span>
-							<div className="flex items-center">
-								<ArrowUp className="h-4 w-4 text-green-500 mr-1" />
-								<span className="text-sm font-bold text-green-500">5.2%</span>
-							</div>
-						</div>
-						<div className="flex items-center justify-between">
-							<span className="text-sm font-medium">Cifră de Afaceri:</span>
-							<div className="flex items-center">
-								<ArrowUp className="h-4 w-4 text-green-500 mr-1" />
-								<span className="text-sm font-bold text-green-500">7.8%</span>
-							</div>
-						</div>
-						<div className="flex items-center justify-between">
-							<span className="text-sm font-medium">Profit:</span>
-							<div className="flex items-center">
-								<ArrowUp className="h-4 w-4 text-green-500 mr-1" />
-								<span className="text-sm font-bold text-green-500">3.5%</span>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
 			</div>
 			<Card>
 				<CardHeader>
