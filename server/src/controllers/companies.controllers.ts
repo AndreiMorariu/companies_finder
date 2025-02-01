@@ -4,7 +4,8 @@ import { jsendSuccess } from "../utils/jsendResponse";
 
 import {
   getCompanyByCui,
-  getCompaniesByFilters
+  getCompaniesByFilters,
+  getCompaniesStatistics
 } from "../services/companies.service";
 
 import { CompanyFilters } from "../types/companies";
@@ -18,6 +19,19 @@ export function getCompanyByCuiHandler(
     const { cui } = req.params;
     const company = getCompanyByCui(cui);
     res.send(jsendSuccess({ company }));
+  } catch (error) {
+    next(error);
+  }
+}
+
+export function getCompaniesStatisticsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const statistics = getCompaniesStatistics();
+    res.send(jsendSuccess({ statistics }));
   } catch (error) {
     next(error);
   }

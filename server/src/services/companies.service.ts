@@ -6,15 +6,29 @@ export function getCompanyByCui(cui: string) {
   if (!cui || cui.trim() === "")
     throw new BadRequestError("CUI is required and cannot be empty");
 
-  const getCompanyByCuiQuery = database.prepare(`
-    SELECT * FROM Companies WHERE cui = ? 
-  `);
+  const getCompanyByCuiQuery = database.prepare("SELECT * FROM Companies WHERE cui = ?");
 
   const company = getCompanyByCuiQuery.get(cui);
 
   if (!company) throw new NotFoundError("Company not found");
 
   return company;
+}
+
+export function getCompaniesStatistics() {
+  const getCompaniesQuery = database.prepare(`
+    SELECT
+      COUNT(*) as companii,
+      SUM(cifra_de_afaceri_neta) AS cifra_de_afaceri_neta_totala,
+      SUM(profit_net) AS profit_net_total,
+      SUM(numar_mediu_de_salariati) AS numar_mediu_de_salariati_total
+    FROM
+      Companies
+  `);
+
+  const statistics = getCompaniesQuery.get();
+
+  return statistics;
 }
 
 export function getCompaniesByFilters(filters: CompanyFilters) {
@@ -162,7 +176,7 @@ export function getCompaniesByFilters(filters: CompanyFilters) {
   }
 
   if (denumire) {
-    query += " AND denumire LIKE ?";
+    query += " AND lower(denumire) LIKE lower(?)";
     params.push(`%${denumire}%`);
   }
 
@@ -172,7 +186,7 @@ export function getCompaniesByFilters(filters: CompanyFilters) {
   }
 
   if (judet) {
-    query += " AND judet = ?";
+    query += " AND lower(judet) LIKE lower(?)";
     params.push(judet);
   }
 
