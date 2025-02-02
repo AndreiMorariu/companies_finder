@@ -278,17 +278,7 @@ export function CompaniesDataTable() {
               ))}
             </TableHeader>
             <TableBody>
-              {isLoading ? (
-                Array.from({ length: pageSize }).map((_, index) => (
-                  <TableRow key={index}>
-                    {table.getVisibleFlatColumns().map((column) => (
-                      <TableCell key={column.id}>
-                        <Skeleton className="h-4 w-full" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : table.getRowModel().rows?.length ? (
+              {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
@@ -305,14 +295,15 @@ export function CompaniesDataTable() {
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    Nu există rezultate.
-                  </TableCell>
-                </TableRow>
+                Array.from({ length: pageSize }).map((_, index) => (
+                  <TableRow key={index}>
+                    {table.getVisibleFlatColumns().map((column) => (
+                      <TableCell key={column.id}>
+                        <Skeleton className="h-4 w-full" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
               )}
             </TableBody>
           </Table>
@@ -363,8 +354,9 @@ export function CompaniesDataTable() {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         <FilterSidebar onSearch={handleSearch} initialFilters={filters} />
-        <CompanyStatistics companies={companies} allCompanies={allCompanies} />
+        <CompanyStatistics companies={companies} allCompanies={allCompanies} isLoading={isLoading} />
       </div>
     </div>
   );
 }
+
