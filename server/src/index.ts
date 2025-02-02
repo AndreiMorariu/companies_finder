@@ -38,18 +38,3 @@ app.get("/favicon.ico", (_req: Request, res: Response) => {
 app.use(errorHandler);
 
 app.listen(PORT);
-
-// Prevent Inactivity spin down 
-const url = "https://companies-finder-3h6u.onrender.com";
-const interval = 3000;
-
-function reloadWebsite() {
-  fetch(url).then(response => {
-    console.log(`Reloaded at ${new Date().toISOString()}: Status Code ${response.status}`);
-  })
-    .catch(error => {
-      console.error(`Error reloading at ${new Date().toISOString()}:`, error.message);
-    });
-}
-
-setInterval(interval, reloadWebsite);
