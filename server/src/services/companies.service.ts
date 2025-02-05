@@ -44,7 +44,6 @@ export function getCompaniesStatistics(filters: CompanyFilters) {
     judet,
   } = filters;
 
-  // Start the base query
   let query = `
     SELECT
       COUNT(*) as companii,
