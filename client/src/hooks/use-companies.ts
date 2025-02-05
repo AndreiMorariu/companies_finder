@@ -49,10 +49,14 @@ export function useCompanies(initialLimit = 10) {
         }
 
         if (Array.isArray(value)) {
-          return value.some((v) => String(companyValue).toLowerCase().includes(v.toLowerCase()))
+          return value.some((v) => {
+            const words = v.toLowerCase().split(/\s+/)
+            return words.every((word) => String(companyValue).toLowerCase().includes(word))
+          })
         }
 
-        return String(companyValue).toLowerCase().includes(String(value).toLowerCase())
+        const words = String(value).toLowerCase().split(/\s+/)
+        return words.every((word) => String(companyValue).toLowerCase().includes(word))
       })
     })
     setIsLoading(false)
