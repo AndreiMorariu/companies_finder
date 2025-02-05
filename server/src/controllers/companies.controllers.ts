@@ -25,12 +25,12 @@ export function getCompanyByCuiHandler(
 }
 
 export function getCompaniesStatisticsHandler(
-  req: Request,
+  req: Request<any, any, any, CompanyFilters>,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const statistics = getCompaniesStatistics();
+    const statistics = getCompaniesStatistics(req.query);
     res.send(jsendSuccess({ statistics }));
   } catch (error) {
     next(error);
