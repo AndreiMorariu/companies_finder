@@ -160,7 +160,7 @@ export function CompaniesDataTable() {
 
   const {
     companies,
-    allCompanies,
+    statistics,
     isLoading,
     error,
     pagination,
@@ -352,7 +352,7 @@ export function CompaniesDataTable() {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
         <FilterSidebar onSearch={handleSearch} initialFilters={filters} />
-        <CompanyStatistics companies={companies} allCompanies={allCompanies} isLoading={isLoading} />
+        <CompanyStatistics isLoading={isLoading} statistics={statistics} companies={companies} />
       </div>
     </div>
   );

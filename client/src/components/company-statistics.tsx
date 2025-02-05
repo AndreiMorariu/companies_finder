@@ -7,25 +7,13 @@ import type React from "react"
 
 interface CompanyStatisticsProps {
   companies: Company[]
-  allCompanies: Company[]
+  statistics: {
+    companii: number
+    cifra_de_afaceri_neta_totala: number
+    profit_net_total: number
+    numar_mediu_de_salariati_total: number
+  } | null
   isLoading: boolean
-}
-
-function calculateStatistics(companies: Company[]) {
-  const totalCompanies = companies.length
-  const totalEmployees = companies.reduce((sum, company) => sum + (company.numar_mediu_de_salariati || 0), 0)
-  const totalRevenue = companies.reduce((sum, company) => sum + (company.cifra_de_afaceri_neta || 0), 0)
-  const totalProfit = companies.reduce((sum, company) => sum + (company.profit_net || 0), 0)
-
-  return {
-    totalCompanies,
-    totalEmployees,
-    averageEmployees: totalCompanies ? Math.round(totalEmployees / totalCompanies) : 0,
-    totalRevenue,
-    averageRevenue: totalCompanies ? Math.round(totalRevenue / totalCompanies) : 0,
-    totalProfit,
-    averageProfit: totalCompanies ? Math.round(totalProfit / totalCompanies) : 0,
-  }
 }
 
 function StatCard({
@@ -64,99 +52,41 @@ function StatCard({
   )
 }
 
-export function CompanyStatistics({ companies, allCompanies, isLoading }: CompanyStatisticsProps) {
-  const currentPageStats = useMemo(() => calculateStatistics(companies), [companies])
-  const allCompaniesStats = useMemo(() => calculateStatistics(allCompanies), [allCompanies])
+export function CompanyStatistics({ companies, statistics, isLoading }: CompanyStatisticsProps) {
+  const currentPageStats = useMemo(() => {
+    const totalCompanies = companies.length
+    const totalEmployees = companies.reduce((sum, company) => sum + (company.numar_mediu_de_salariati || 0), 0)
+    const totalRevenue = companies.reduce((sum, company) => sum + (company.cifra_de_afaceri_neta || 0), 0)
+    const totalProfit = companies.reduce((sum, company) => sum + (company.profit_net || 0), 0)
 
-  const topEmployees = useMemo(() => {
-    return companies.length > 0
-      ? companies.reduce(
-        (max, company) =>
-          (company.numar_mediu_de_salariati || 0) > (max.numar_mediu_de_salariati || 0) ? company : max,
-        companies[0],
-      )
-      : null
+    return {
+      totalCompanies,
+      totalEmployees,
+      averageEmployees: totalCompanies ? Math.round(totalEmployees / totalCompanies) : 0,
+      totalRevenue,
+      averageRevenue: totalCompanies ? Math.round(totalRevenue / totalCompanies) : 0,
+      totalProfit,
+      averageProfit: totalCompanies ? Math.round(totalProfit / totalCompanies) : 0,
+    }
   }, [companies])
 
-  const topRevenue = useMemo(() => {
-    return companies.length > 0
-      ? companies.reduce(
-        (max, company) => ((company.cifra_de_afaceri_neta || 0) > (max.cifra_de_afaceri_neta || 0) ? company : max),
-        companies[0],
-      )
-      : null
-  }, [companies])
+  const topPerformers = useMemo(() => {
+    if (companies.length === 0) return null
 
-  const topProfit = useMemo(() => {
-    return companies.length > 0
-      ? companies.reduce(
-        (max, company) => ((company.profit_net || 0) > (max.profit_net || 0) ? company : max),
-        companies[0],
-      )
-      : null
-  }, [companies])
-
-  const topEmployeesAll = useMemo(() => {
-    return allCompanies.length > 0
-      ? allCompanies.reduce(
-        (max, company) =>
-          (company.numar_mediu_de_salariati || 0) > (max.numar_mediu_de_salariati || 0) ? company : max,
-        allCompanies[0],
-      )
-      : null
-  }, [allCompanies])
-
-  const topRevenueAll = useMemo(() => {
-    return allCompanies.length > 0
-      ? allCompanies.reduce(
-        (max, company) => ((company.cifra_de_afaceri_neta || 0) > (max.cifra_de_afaceri_neta || 0) ? company : max),
-        allCompanies[0],
-      )
-      : null
-  }, [allCompanies])
-
-  const topProfitAll = useMemo(() => {
-    return allCompanies.length > 0
-      ? allCompanies.reduce(
-        (max, company) => ((company.profit_net || 0) > (max.profit_net || 0) ? company : max),
-        allCompanies[0],
-      )
-      : null
-  }, [allCompanies])
-
-  if (isLoading) {
-    return (
-      <div className="space-y-4 col-span-3">
-        <h2 className="text-2xl font-bold tracking-tight">Statistici Companii</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, index) => (
-            <StatCard key={index} title="Se încarcă..." value="" icon={Building2} isLoading={true} />
-          ))}
-        </div>
-        {[...Array(3)].map((_, index) => (
-          <Card key={index}>
-            <CardHeader>
-              <Skeleton className="h-6 w-1/2" />
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {[...Array(4)].map((_, innerIndex) => (
-                <Skeleton key={innerIndex} className="h-4 w-full" />
-              ))}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+    const topEmployees = companies.reduce((max, company) =>
+      (company.numar_mediu_de_salariati || 0) > (max.numar_mediu_de_salariati || 0) ? company : max,
     )
-  }
 
-  if (!isLoading && (companies.length === 0 || allCompanies.length === 0)) {
-    return (
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold tracking-tight">Statistici Companii</h2>
-        <p>Nu există date disponibile pentru filtrele selectate.</p>
-      </div>
+    const topRevenue = companies.reduce((max, company) =>
+      (company.cifra_de_afaceri_neta || 0) > (max.cifra_de_afaceri_neta || 0) ? company : max,
     )
-  }
+
+    const topProfit = companies.reduce((max, company) =>
+      (company.profit_net || 0) > (max.profit_net || 0) ? company : max,
+    )
+
+    return { topEmployees, topRevenue, topProfit }
+  }, [companies])
 
   return (
     <div className="space-y-4 col-span-3">
@@ -166,7 +96,7 @@ export function CompanyStatistics({ companies, allCompanies, isLoading }: Compan
           title="Total Companii"
           value={currentPageStats.totalCompanies.toString()}
           icon={Building2}
-          subValue={`Din ${allCompaniesStats.totalCompanies} total`}
+          subValue={`Din ${statistics?.companii || 0} total`}
           isLoading={isLoading}
         />
         <StatCard
@@ -191,7 +121,7 @@ export function CompanyStatistics({ companies, allCompanies, isLoading }: Compan
           isLoading={isLoading}
         />
       </div>
-      <div className="grid gap-4 grid-cols-2">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Comparație cu Toate Companiile</CardTitle>
@@ -200,25 +130,31 @@ export function CompanyStatistics({ companies, allCompanies, isLoading }: Compan
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Procent Companii:</span>
               <span className="text-sm font-bold">
-                {((currentPageStats.totalCompanies / allCompaniesStats.totalCompanies) * 100).toFixed(2)}%
+                {statistics ? ((currentPageStats.totalCompanies / statistics.companii) * 100).toFixed(2) : 0}%
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Procent Angajați:</span>
               <span className="text-sm font-bold">
-                {((currentPageStats.totalEmployees / allCompaniesStats.totalEmployees) * 100).toFixed(2)}%
+                {statistics
+                  ? ((currentPageStats.totalEmployees / statistics.numar_mediu_de_salariati_total) * 100).toFixed(2)
+                  : 0}
+                %
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Procent Cifră de Afaceri:</span>
               <span className="text-sm font-bold">
-                {((currentPageStats.totalRevenue / allCompaniesStats.totalRevenue) * 100).toFixed(2)}%
+                {statistics
+                  ? ((currentPageStats.totalRevenue / statistics.cifra_de_afaceri_neta_totala) * 100).toFixed(2)
+                  : 0}
+                %
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Procent Profit:</span>
               <span className="text-sm font-bold">
-                {((currentPageStats.totalProfit / allCompaniesStats.totalProfit) * 100).toFixed(2)}%
+                {statistics ? ((currentPageStats.totalProfit / statistics.profit_net_total) * 100).toFixed(2) : 0}%
               </span>
             </div>
           </CardContent>
@@ -232,15 +168,18 @@ export function CompanyStatistics({ companies, allCompanies, isLoading }: Compan
               <UserPlus className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium">Cei mai mulți angajați:</span>
               <span className="text-sm font-bold">
-                {topEmployees ? `${topEmployees.numar_mediu_de_salariati} (${topEmployees.denumire})` : "N/A"}
+                {topPerformers?.topEmployees
+                  ? `${topPerformers.topEmployees.numar_mediu_de_salariati} (${topPerformers.topEmployees.denumire})`
+                  : "N/A"}
               </span>
             </div>
             <div className="flex items-center space-x-2">
               <DollarSign className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium">Cea mai mare cifră de afaceri:</span>
               <span className="text-sm font-bold">
-                {topRevenue
-                  ? `${((topRevenue.cifra_de_afaceri_neta ?? 0) / 1000000).toFixed(2)}M RON (${topRevenue.denumire})`
+                {topPerformers?.topRevenue
+                  ? `${((topPerformers.topRevenue.cifra_de_afaceri_neta ?? 0) / 1000000).toFixed(2)}M RON (${topPerformers.topRevenue.denumire
+                  })`
                   : "N/A"}
               </span>
             </div>
@@ -248,49 +187,15 @@ export function CompanyStatistics({ companies, allCompanies, isLoading }: Compan
               <PiggyBank className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium">Cel mai mare profit:</span>
               <span className="text-sm font-bold">
-                {topProfit
-                  ? `${((topProfit.profit_net ?? 0) / 1000000).toFixed(2)}M RON (${topProfit.denumire})`
+                {topPerformers?.topProfit
+                  ? `${((topPerformers.topProfit.profit_net ?? 0) / 1000000).toFixed(2)}M RON (${topPerformers.topProfit.denumire
+                  })`
                   : "N/A"}
               </span>
             </div>
           </CardContent>
         </Card>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Informații despre Toate Companiile</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Total Companii:</span>
-            <span className="text-sm font-bold">{allCompaniesStats.totalCompanies}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Total Angajați:</span>
-            <span className="text-sm font-bold">{allCompaniesStats.totalEmployees.toLocaleString()}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Medie Angajați per Companie:</span>
-            <span className="text-sm font-bold">{allCompaniesStats.averageEmployees}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Cifră de Afaceri Totală:</span>
-            <span className="text-sm font-bold">{(allCompaniesStats.totalRevenue / 1000000).toFixed(2)}M RON</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Medie Cifră de Afaceri:</span>
-            <span className="text-sm font-bold">{(allCompaniesStats.averageRevenue / 1000000).toFixed(2)}M RON</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Profit Total:</span>
-            <span className="text-sm font-bold">{(allCompaniesStats.totalProfit / 1000000).toFixed(2)}M RON</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Medie Profit:</span>
-            <span className="text-sm font-bold">{(allCompaniesStats.averageProfit / 1000000).toFixed(2)}M RON</span>
-          </div>
-        </CardContent>
-      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Top Performeri (Toate Companiile cu Filtrele Aplicate)</CardTitle>
@@ -300,26 +205,57 @@ export function CompanyStatistics({ companies, allCompanies, isLoading }: Compan
             <UserPlus className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium">Cei mai mulți angajați:</span>
             <span className="text-sm font-bold">
-              {topEmployeesAll ? `${topEmployeesAll.numar_mediu_de_salariati} (${topEmployeesAll.denumire})` : "N/A"}
+              {statistics ? `${statistics.numar_mediu_de_salariati_total} (Total)` : "N/A"}
             </span>
           </div>
           <div className="flex items-center space-x-2">
             <DollarSign className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium">Cea mai mare cifră de afaceri:</span>
             <span className="text-sm font-bold">
-              {topRevenueAll
-                ? `${((topRevenueAll.cifra_de_afaceri_neta ?? 0) / 1000000).toFixed(2)}M RON (${topRevenueAll.denumire})`
-                : "N/A"}
+              {statistics ? `${(statistics.cifra_de_afaceri_neta_totala / 1000000).toFixed(2)}M RON (Total)` : "N/A"}
             </span>
           </div>
           <div className="flex items-center space-x-2">
             <PiggyBank className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium">Cel mai mare profit:</span>
             <span className="text-sm font-bold">
-              {topProfitAll
-                ? `${((topProfitAll.profit_net ?? 0) / 1000000).toFixed(2)}M RON (${topProfitAll.denumire})`
-                : "N/A"}
+              {statistics ? `${(statistics.profit_net_total / 1000000).toFixed(2)}M RON (Total)` : "N/A"}
             </span>
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Informații despre Toate Companiile</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Total Companii:</span>
+            <span className="text-sm font-bold">38863</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Total Angajați:</span>
+            <span className="text-sm font-bold">153,566</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Medie Angajați per Companie:</span>
+            <span className="text-sm font-bold">4</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Cifră de Afaceri Totală:</span>
+            <span className="text-sm font-bold">62144.03M RON</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Medie Cifră de Afaceri:</span>
+            <span className="text-sm font-bold">1.60M RON</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Profit Total:</span>
+            <span className="text-sm font-bold">10637.17M RON</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Medie Profit:</span>
+            <span className="text-sm font-bold">0.27M RON</span>
           </div>
         </CardContent>
       </Card>

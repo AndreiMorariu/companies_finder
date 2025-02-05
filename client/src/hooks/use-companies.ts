@@ -1,89 +1,70 @@
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback } from "react"
 import type { Company, PaginatedResponse } from "@/types/company"
-import { getCompanies } from "@/services/companies.service"
+import { getCompanies, getCompaniesStatistics } from "@/services/companies.service"
 
-export function useCompanies(initialLimit = 10) {
+interface Statistics {
+  companii: number
+  cifra_de_afaceri_neta_totala: number
+  profit_net_total: number
+  numar_mediu_de_salariati_total: number
+}
+
+export function useCompanies(initialLimit = 10, initialFilters: Record<string, string | string[]> = {}) {
   const [companies, setCompanies] = useState<Company[]>([])
-  const [allCompanies, setAllCompanies] = useState<Company[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [pagination, setPagination] = useState<PaginatedResponse<Company>["pagination"] | null>(null)
   const [offset, setOffset] = useState(0)
   const [limit, setLimit] = useState(initialLimit)
-  const [filters, setFilters] = useState<Record<string, string | string[]>>({})
+  const [filters, setFilters] = useState<Record<string, string | string[]>>(initialFilters)
+  const [statistics, setStatistics] = useState<Statistics | null>(null)
 
-  const fetchAllCompanies = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await getCompanies({ limit: "40000" });
-      setAllCompanies(response.data)
-    } catch (err) {
-      setError("Failed to fetch all companies");
-      console.error("Error fetching companies:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchAllCompanies()
-  }, [fetchAllCompanies])
-
-  const filteredCompanies = useMemo(() => {
+  const fetchCompanies = useCallback(async () => {
     setIsLoading(true)
-    const filtered = allCompanies.filter((company) => {
-      return Object.entries(filters).every(([key, value]) => {
-        if (!value || (Array.isArray(value) && value.length === 0)) return true
-
-        const companyValue = company[key as keyof Company]
-
-        if (typeof companyValue === "number" && typeof value === "string") {
-          const numericValue = Number.parseFloat(value)
-          if (!isNaN(numericValue)) {
-            if (key === "numar_mediu_de_salariati") {
-              return companyValue > numericValue
-            }
-            return companyValue === numericValue
-          }
-        }
-
-        if (Array.isArray(value)) {
-          return value.some((v) => {
-            const words = v.toLowerCase().split(/\s+/)
-            return words.every((word) => String(companyValue).toLowerCase().includes(word))
-          })
-        }
-
-        const words = String(value).toLowerCase().split(/\s+/)
-        return words.every((word) => String(companyValue).toLowerCase().includes(word))
+    try {
+      const queryParams = new URLSearchParams({
+        offset: offset.toString(),
+        limit: limit.toString(),
+        ...filters,
       })
-    })
-    setIsLoading(false)
-    return filtered
-  }, [allCompanies, filters])
+      const response = await getCompanies(queryParams)
+      setCompanies(response.data)
+      setPagination(response.pagination)
+    } catch (err) {
+      setError("Failed to fetch companies")
+      console.error("Error fetching companies:", err)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [offset, limit, filters])
 
-  const paginatedCompanies = useMemo(() => {
-    const start = offset
-    const end = offset + limit
-    return filteredCompanies.slice(start, end)
-  }, [filteredCompanies, offset, limit])
+  const fetchStatistics = useCallback(async () => {
+    try {
+      const queryParams = new URLSearchParams()
+      Object.entries(filters).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach((item) => queryParams.append(key, item))
+        } else if (value !== undefined && value !== null) {
+          queryParams.append(key, value)
+        }
+      })
+      const stats = await getCompaniesStatistics(queryParams)
+      setStatistics(stats)
+    } catch (err) {
+      console.error("Failed to fetch statistics:", err)
+    }
+  }, [filters])
 
   useEffect(() => {
-    setCompanies(paginatedCompanies)
-    setPagination({
-      currentPage: Math.floor(offset / limit) + 1,
-      itemsPerPage: limit,
-      totalItems: filteredCompanies.length,
-      totalPages: Math.ceil(filteredCompanies.length / limit),
-    })
-  }, [paginatedCompanies, offset, limit, filteredCompanies])
+    fetchCompanies()
+    fetchStatistics()
+  }, [fetchCompanies, fetchStatistics])
 
   const nextPage = useCallback(() => {
-    if (offset + limit < filteredCompanies.length) {
+    if (pagination && offset + limit < pagination.totalItems) {
       setOffset((prevOffset) => prevOffset + limit)
     }
-  }, [filteredCompanies.length, limit, offset])
+  }, [pagination, offset, limit])
 
   const previousPage = useCallback(() => {
     setOffset((prevOffset) => Math.max(0, prevOffset - limit))
@@ -92,11 +73,11 @@ export function useCompanies(initialLimit = 10) {
   const goToPage = useCallback(
     (page: number) => {
       const newOffset = (page - 1) * limit
-      if (newOffset >= 0 && newOffset < filteredCompanies.length) {
+      if (pagination && newOffset >= 0 && newOffset < pagination.totalItems) {
         setOffset(newOffset)
       }
     },
-    [filteredCompanies.length, limit],
+    [pagination, limit],
   )
 
   const changeLimit = useCallback((newLimit: number) => {
@@ -105,17 +86,15 @@ export function useCompanies(initialLimit = 10) {
   }, [])
 
   const changeFilters = useCallback((newFilters: Record<string, string | string[]>) => {
-    setIsLoading(true)
     setFilters(newFilters)
     setOffset(0)
   }, [])
 
-  const currentPage = Math.floor(offset / limit) + 1
-  const totalPages = Math.ceil(filteredCompanies.length / limit)
+  const currentPage = pagination ? Math.floor(offset / limit) + 1 : 1
+  const totalPages = pagination ? Math.ceil(pagination.totalItems / limit) : 1
 
   return {
     companies,
-    allCompanies: filteredCompanies,
     isLoading,
     error,
     pagination,
@@ -126,8 +105,9 @@ export function useCompanies(initialLimit = 10) {
     goToPage,
     changeLimit,
     changeFilters,
-    refetchAllCompanies: fetchAllCompanies,
+    statistics,
   }
 }
+
 
 
