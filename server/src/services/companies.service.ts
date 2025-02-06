@@ -6,7 +6,9 @@ export function getCompanyByCui(cui: string) {
   if (!cui || cui.trim() === "")
     throw new BadRequestError("CUI is required and cannot be empty");
 
-  const getCompanyByCuiQuery = database.prepare("SELECT * FROM Companies WHERE cui = ?");
+  const getCompanyByCuiQuery = database.prepare(
+    "SELECT * FROM Companies WHERE cui = ?"
+  );
 
   const company = getCompanyByCuiQuery.get(cui);
 
@@ -41,7 +43,7 @@ export function getCompaniesStatistics(filters: CompanyFilters) {
     numar_mediu_de_salariati,
     denumire,
     telefon,
-    judet,
+    judet
   } = filters;
 
   let query = `
@@ -62,8 +64,10 @@ export function getCompaniesStatistics(filters: CompanyFilters) {
   }
 
   if (caen) {
-    query += " AND caen = ?";
-    params.push(caen);
+    const caenList = Array.isArray(caen) ? caen : caen.split(",");
+    const placeholders = caenList.map(() => "?").join(",");
+    query += ` AND caen IN (${placeholders})`;
+    params.push(...caenList);
   }
 
   if (active_imobilizate) {
@@ -177,15 +181,16 @@ export function getCompaniesStatistics(filters: CompanyFilters) {
   }
 
   if (judet) {
-    query += " AND lower(judet) LIKE lower(?)";
-    params.push(judet);
+    const judetList = Array.isArray(judet) ? judet : judet.split(",");
+    const placeholders = judetList.map(() => "?").join(",");
+    query += ` AND lower(judet) IN (${placeholders})`;
+    params.push(...judetList.map((j) => j.toLowerCase()));
   }
 
   const statistics = database.prepare(query).get(...params);
 
   return statistics;
 }
-
 
 export function getCompaniesByFilters(filters: CompanyFilters) {
   const {
@@ -227,8 +232,10 @@ export function getCompaniesByFilters(filters: CompanyFilters) {
   }
 
   if (caen) {
-    query += " AND caen = ?";
-    params.push(caen);
+    const caenList = Array.isArray(caen) ? caen : caen.split(",");
+    const placeholders = caenList.map(() => "?").join(",");
+    query += ` AND caen IN (${placeholders})`;
+    params.push(...caenList);
   }
 
   if (active_imobilizate) {
@@ -342,8 +349,10 @@ export function getCompaniesByFilters(filters: CompanyFilters) {
   }
 
   if (judet) {
-    query += " AND lower(judet) LIKE lower(?)";
-    params.push(judet);
+    const judetList = Array.isArray(judet) ? judet : judet.split(",");
+    const placeholders = judetList.map(() => "?").join(",");
+    query += ` AND lower(judet) IN (${placeholders})`;
+    params.push(...judetList.map((j) => j.toLowerCase()));
   }
 
   const totalCompanies = database.prepare(query).all(...params);
